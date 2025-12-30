@@ -1,74 +1,74 @@
-# Web Scraping With AIOHTTP in Python
+# PythonでAIOHTTPを使用したWebスクレイピング
 
-[![Promo](https://github.com/luminati-io/LinkedIn-Scraper/raw/main/Proxies%20and%20scrapers%20GitHub%20bonus%20banner.png)](https://brightdata.com/) 
+[![Promo](https://github.com/luminati-io/LinkedIn-Scraper/raw/main/Proxies%20and%20scrapers%20GitHub%20bonus%20banner.png)](https://brightdata.jp/) 
 
-This guides explains the basics of using AIOHTTP in Python for web scraping.
+本ガイドでは、PythonでAIOHTTPを使用してWebスクレイピングを行うための基本を解説します。
 
-- [What Is AIOHTTP?](#what-is-aiohttp)
-- [Scraping with AIOHTTP: Step-By-Step Tutorial](#scraping-with-aiohttp-step-by-step-tutorial)
-  - [Step #1: Setting Up a Scraping Project](#step-1-setting-up-a-scraping-project)
-  - [Step #2: Setting Up the Scraping Libraries](#step-2-setting-up-the-scraping-libraries)
-  - [Step #3: Getting the HTML of the Target Page](#step-3-getting-the-html-of-the-target-page)
-  - [Step #4: Parsing the HTML](#step-4-parsing-the-html)
-  - [Step #5: Writing the Data Extraction Logic](#step-5-writing-the-data-extraction-logic)
-  - [Step #6: Exporting the Scraped Data](#step-6-exporting-the-scraped-data)
-  - [Step #7: Putting It All Together](#step-7-putting-it-all-together)
-- [AIOHTTP for Web Scraping: Advanced Features and Techniques](#aiohttp-for-web-scraping-advanced-features-and-techniques)
-  - [Setting Custom Headers](#setting-custom-headers)
-  - [Setting a Custom User Agent](#setting-a-custom-user-agent)
-  - [Setting Cookies](#setting-cookies)
-  - [Proxy Integration](#proxy-integration)
-  - [Error Handling](#error-handling)
-  - [Retrying Failed Requests](#retrying-failed-requests)
-- [AIOHTTP vs Requests for Web Scraping](#aiohttp-vs-requests-for-web-scraping)
-- [Conclusion](#conclusion)
+- [AIOHTTPとは？](#what-is-aiohttp)
+- [AIOHTTPでスクレイピング：ステップバイステップチュートリアル](#scraping-with-aiohttp-step-by-step-tutorial)
+  - [ステップ #1：スクレイピングプロジェクトのセットアップ](#step-1-setting-up-a-scraping-project)
+  - [ステップ #2：スクレイピング用ライブラリのセットアップ](#step-2-setting-up-the-scraping-libraries)
+  - [ステップ #3：ターゲットページのHTMLを取得する](#step-3-getting-the-html-of-the-target-page)
+  - [ステップ #4：HTMLを解析する](#step-4-parsing-the-html)
+  - [ステップ #5：データ抽出ロジックを書く](#step-5-writing-the-data-extraction-logic)
+  - [ステップ #6：スクレイピングしたデータをエクスポートする](#step-6-exporting-the-scraped-data)
+  - [ステップ #7：すべてをまとめる](#step-7-putting-it-all-together)
+- [Webスクレイピング向けAIOHTTP：高度な機能とテクニック](#aiohttp-for-web-scraping-advanced-features-and-techniques)
+  - [カスタムヘッダーの設定](#setting-custom-headers)
+  - [カスタムUser Agentの設定](#setting-a-custom-user-agent)
+  - [Cookieの設定](#setting-cookies)
+  - [プロキシ連携](#proxy-integration)
+  - [エラーハンドリング](#error-handling)
+  - [失敗したリクエストのリトライ](#retrying-failed-requests)
+- [WebスクレイピングにおけるAIOHTTPとRequestsの比較](#aiohttp-vs-requests-for-web-scraping)
+- [結論](#conclusion)
 
 ## What Is AIOHTTP?
 
-[AIOHTTP](https://docs.aiohttp.org/en/stable/) is an asynchronous client/server HTTP framework built on Python’s [`asyncio`](https://docs.python.org/3/library/asyncio.html) library. Unlike traditional HTTP clients, AIOHTTP uses client sessions to manage connections across multiple requests, making it a highly efficient choice for high-concurrency, session-based tasks.
+[AIOHTTP](https://docs.aiohttp.org/en/stable/) は、Pythonの [`asyncio`](https://docs.python.org/3/library/asyncio.html) ライブラリ上に構築された、非同期のクライアント/サーバーHTTPフレームワークです。従来のHTTPクライアントとは異なり、AIOHTTPはクライアントセッションを使用して複数リクエストにわたる接続を管理するため、高い同時接続性を必要とするセッションベースのタスクにおいて非常に効率的な選択肢です。
 
 
 **⚙️ Features**
 
-- Supports both client and server implementations of the HTTP protocol.  
-- Natively supports WebSockets for both client and server.  
-- Provides middleware and pluggable routing for building web servers.  
-- Efficiently manages streaming of large data.  
-- Includes client session persistence, allowing connection reuse and minimizing overhead for multiple requests.  
+- HTTPプロトコルのクライアント実装とサーバー実装の両方をサポートします。  
+- クライアント/サーバーの両方でWebSocketをネイティブにサポートします。  
+- Webサーバー構築のためのミドルウェアとプラガブルなルーティングを提供します。  
+- 大容量データのストリーミングを効率的に管理します。  
+- クライアントセッションの永続化が含まれており、接続を再利用して複数リクエスト時のオーバーヘッドを最小化します。  
 
 
 ## Scraping with AIOHTTP: Step-By-Step Tutorial
 
-In the context of web scraping, AIOHTTP is just an HTTP client to fetch the raw HTML content of a page. To parse and extract data from that HTML, you need an HTML parser like [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/).
+Webスクレイピングの文脈では、AIOHTTPはページの生HTMLコンテンツを取得するためのHTTPクライアントに過ぎません。そのHTMLからデータを解析・抽出するには、[BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) のようなHTMLパーサーが必要です。
 
 > **Warning**:\
-> Although AIOHTTP is mainly utilized in the initial stages of the process, this guide walks you through the entire scraping workflow. If you're looking for more advanced AIOHTTP web scraping techniques, you can skip ahead to the next chapter after completing Step 3.
+> AIOHTTPは主にプロセスの初期段階で利用されますが、本ガイドではスクレイピングのワークフロー全体を順を追って説明します。より高度なAIOHTTPのWebスクレイピングテクニックを探している場合は、ステップ3を完了した後に次の章へ進んでください。
 
 ### Step #1: Setting Up a Scraping Project
 
-Install Python3+ and create a directory for your AIOHTTP scraping project:
+Python3+ をインストールし、AIOHTTPスクレイピングプロジェクト用のディレクトリを作成します。
 
 ```bash
 mkdir aiohttp-scraper
 ```
 
-Navigate into that directory and set up a [virtual environment](https://docs.python.org/3/library/venv.html):
+そのディレクトリに移動し、[virtual environment](https://docs.python.org/3/library/venv.html) をセットアップします。
 
 ```bash
 cd aiohttp-scraper
 python -m venv env
 ```
 
-Open the project folder in your preferred Python IDE and create a file named `scraper.py` within the project folder.
+お好みのPython IDEでプロジェクトフォルダを開き、プロジェクトフォルダ内に `scraper.py` という名前のファイルを作成します。
 
 
-In your IDE’s terminal, activate the virtual environment. On Linux or macOS, use:
+IDEのターミナルで、仮想環境を有効化します。LinuxまたはmacOSでは次を使用します。
 
 ```bash
 ./env/bin/activate
 ```
 
-On Windows, run:
+Windowsでは次を実行します。
 
 ```powershell
 env/Scripts/activate
@@ -76,13 +76,13 @@ env/Scripts/activate
 
 ### Step #2: Setting Up the Scraping Libraries
 
-Install AIOHTTP and BeautifulSoup:
+AIOHTTPとBeautifulSoupをインストールします。
 
 ```bash
 pip install aiohttp beautifulsoup4
 ```
 
-Import the installed the [`aiohttp`](https://docs.aiohttp.org/en/stable/) and [`beautifulsoup4`](https://pypi.org/project/beautifulsoup4/) dependencies into your `scraper.py` script:
+インストールした [`aiohttp`](https://docs.aiohttp.org/en/stable/) と [`beautifulsoup4`](https://pypi.org/project/beautifulsoup4/) の依存関係を `scraper.py` スクリプトへインポートします。
 
 ```python
 import asyncio
@@ -91,9 +91,9 @@ from bs4 import BeautifulSoup
 ```
 
 > **Note**:\
-> `aiohttp` requires the `asyncio` to work.
+> `aiohttp` が動作するには `asyncio` が必要です。
 
-Now, add the following `async` function workflow to your `scrper.py` file:
+次に、以下の `async` 関数ワークフローを `scrper.py` ファイルに追加します。
 
 ```python
 async def scrape_quotes():
@@ -103,27 +103,27 @@ async def scrape_quotes():
 asyncio.run(scrape_quotes())
 ```
 
-`scrape_quotes()` defines an asynchronous function where your scraping logic will run concurrently without blocking. Finally, `asyncio.run(scrape_quotes())` starts and runs the asynchronous function.
+`scrape_quotes()` は、スクレイピングロジックがブロックせずに並行実行される非同期関数を定義します。最後に、`asyncio.run(scrape_quotes())` が非同期関数を開始して実行します。
 
 ### Step #3: Getting the HTML of the Target Page
 
-This example explains how to scrape data from the [“Quotes to Scrape”](https://quotes.toscrape.com/) site:
+この例では、[“Quotes to Scrape”](https://quotes.toscrape.com/) サイトからデータをスクレイピングする方法を説明します。
 
 ![The target site](https://github.com/luminati-io/aiohttp-web-scraping/blob/main/Images/s_C07E0B72CB9153F9B6E6EF6B76FDCD439C9910ACC1C4E94E70E103EE716CD2E2_1737465124750_image.png)
 
-With libraries like Requests or AIOHTTP, making a GET request directly retrieves the HTML content of the page. However, AIOHTTP operates using a [different request lifecycle](https://docs.aiohttp.org/en/stable/http_request_lifecycle.html).  
+RequestsやAIOHTTPのようなライブラリでは、GETリクエストを行うだけでページのHTMLコンテンツを直接取得できます。しかし、AIOHTTPは [異なるリクエストライフサイクル](https://docs.aiohttp.org/en/stable/http_request_lifecycle.html) で動作します。  
 
-The AIOHTTP primary component is the [`ClientSession`](https://docs.aiohttp.org/en/stable/client_reference.html), which manages a pool of connections and supports [`Keep-Alive`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Keep-Alive) by default. Rather than opening a new connection for each request, it reuses existing connections, enhancing performance.
+AIOHTTPの主要コンポーネントは [`ClientSession`](https://docs.aiohttp.org/en/stable/client_reference.html) で、接続プールを管理し、デフォルトで [`Keep-Alive`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Keep-Alive) をサポートします。各リクエストで新規接続を開くのではなく既存接続を再利用することで、パフォーマンスが向上します。
 
-The process of making a request generally involves three key steps:
+リクエストの一般的な流れは、主に以下の3ステップです。
 
-1. Opening a session through `ClientSession()`.
-2. Sending the GET request asynchronously with [`session.get()`](https://docs.aiohttp.org/en/stable/client_reference.html#aiohttp.ClientSession.get).
-3. Accessing the response data with methods like `await response.text()`.
+1. `ClientSession()` でセッションを開きます。
+2. [`session.get()`](https://docs.aiohttp.org/en/stable/client_reference.html#aiohttp.ClientSession.get) でGETリクエストを非同期に送信します。
+3. `await response.text()` のようなメソッドでレスポンスデータへアクセスします。
 
-This design allows the event loop to use different [`with` contexts](https://docs.python.org/3/reference/datamodel.html#context-managers) between operations without blocking, making it ideal for high-concurrency tasks.
+この設計により、イベントループは処理の合間に異なる [`with` contexts](https://docs.python.org/3/reference/datamodel.html#context-managers) をブロックせずに利用できるため、高い同時接続性を必要とするタスクに最適です。
 
-With that in mind, you can use AIOHTTP to fetch the homepage's HTML using the following approach:
+これを踏まえると、AIOHTTPを使って次のアプローチでホームページのHTMLを取得できます。
 
 ```python
 async with aiohttp.ClientSession() as session:
@@ -132,9 +132,9 @@ async with aiohttp.ClientSession() as session:
         html = await response.text()
 ```
 
-Behind the scenes, AIOHTTP handles sending the request to the server and waits for the server's response, which includes the page's HTML content. After receiving the response, the `await response.text()` method retrieves the HTML content as a string.
+内部では、AIOHTTPがサーバーへのリクエスト送信を処理し、ページのHTMLコンテンツを含むサーバーのレスポンスを待機します。レスポンスを受け取った後、`await response.text()` メソッドがHTMLコンテンツを文字列として取得します。
 
-Print the `html` variable and you will see:
+`html` 変数を出力すると、次のようになります。
 
 ```html
 <!DOCTYPE html>
@@ -153,20 +153,20 @@ Print the `html` variable and you will see:
 
 ### Step #4: Parsing the HTML
 
-Parse the HTML content by passing it to the BeautifulSoup constructor:
+HTMLコンテンツをBeautifulSoupコンストラクタに渡して解析します。
 
 ```python
 # Parse the HTML content using BeautifulSoup
 soup = BeautifulSoup(html, "html.parser")
 ```
 
-[`html.parser`](https://docs.python.org/3/library/html.parser.html) is the default Python HTML parser used to process the content.
+[`html.parser`](https://docs.python.org/3/library/html.parser.html) は、コンテンツを処理するために使用されるデフォルトのPython HTMLパーサーです。
 
-The `soup` object contains the parsed HTML and offers methods to extract the required data.  
+`soup` オブジェクトには解析済みHTMLが含まれており、必要なデータを抽出するためのメソッドが提供されます。  
 
 ### Step #5: Writing the Data Extraction Logic
 
-The following code can be used to scrape the quotes data from the page:
+以下のコードを使用して、ページから引用データをスクレイピングできます。
 
 ```python
 # Where to store the scraped data
@@ -189,11 +189,11 @@ for quote_element in quote_elements:
     })
 ```
 
-This code snippet initializes a list called `quotes` to store the scraped data. It locates all the quote HTML elements and iterates through them to extract details such as the quote text, author, and tags. Each extracted quote is stored as a dictionary in the `quotes` list, organizing the data for easy access or export.
+このコードスニペットは、スクレイピングしたデータを格納するために `quotes` というリストを初期化します。次に、引用のHTML要素をすべて見つけ、それらを反復処理して引用文、著者、タグなどの詳細を抽出します。抽出された各引用は辞書として `quotes` リストに格納され、データを簡単に参照またはエクスポートできるように整理されます。
 
 ### Step #6: Exporting the Scraped Data
 
-You can use the following code to export the scraped data to a CSV file:
+以下のコードを使用して、スクレイピングしたデータをCSVファイルにエクスポートできます。
 
 ```python
 # Open the file for export
@@ -207,9 +207,9 @@ with open("quotes.csv", mode="w", newline="", encoding="utf-8") as file:
     writer.writerows(quotes)
 ```
 
-The above snippet opens a file named `quotes.csv` in write mode. Then it, sets up column headers (`text`, `author`, `tags`), writes the headers, and then writes each dictionary from the `quotes` list to the CSV file.
+上記スニペットは、`quotes.csv` という名前のファイルを書き込みモードで開きます。次に、列ヘッダー（`text`、`author`、`tags`）を設定し、ヘッダーを書き込み、その後 `quotes` リスト内の各辞書をCSVファイルへ書き込みます。
 
-[`csv.DictWriter`](https://docs.python.org/3/library/csv.html#csv.DictWriter) simplifies data formatting, making it easier to store structured data. To make it work, import `csv` from the Python Standard Library:
+[`csv.DictWriter`](https://docs.python.org/3/library/csv.html#csv.DictWriter) はデータの整形を簡素化し、構造化データを保存しやすくします。これを動作させるには、Python標準ライブラリから `csv` をインポートします。
 
 ```python
 import csv
@@ -217,7 +217,7 @@ import csv
 
 ### Step #7: Putting It All Together
 
-Here’s the complete AIOHTTP web scraping script:
+AIOHTTPによるWebスクレイピングスクリプトの完全版はこちらです。
 
 ```python
 import asyncio
@@ -268,29 +268,29 @@ async def scrape_quotes():
 asyncio.run(scrape_quotes())
 ```
 
-You can run it with:
+次で実行できます。
 
 ```bash
 python scraper.py
 ```
 
-Or, on Linux/macOS:
+または、Linux/macOSでは次を使用します。
 
 ```bash
 python3 scraper.py
 ```
 
-A `quotes.csv` file will appear in the root folder of your project. Open it and you will see:
+プロジェクトのルートフォルダに `quotes.csv` ファイルが作成されます。開くと、次のようになります。
 
 ![The final quotes file](https://github.com/luminati-io/aiohttp-web-scraping/blob/main/Images/s_C07E0B72CB9153F9B6E6EF6B76FDCD439C9910ACC1C4E94E70E103EE716CD2E2_1737466185816_image.png)
 
 ## AIOHTTP for Web Scraping: Advanced Features and Techniques
 
-In the following examples, the target site will be the [HTTPBin.io `/anything` endpoint](https://httpbin.io/anything). This API returns the IP address, headers, and other data sent by the requester.
+以下の例では、ターゲットサイトとして [HTTPBin.io `/anything` endpoint](https://httpbin.io/anything) を使用します。このAPIは、リクエスト送信者が送ったIPアドレス、ヘッダー、その他のデータを返します。
 
 ### Setting Custom Headers
 
-You can [specify custom headers](https://docs.aiohttp.org/en/stable/client_advanced.html#custom-request-headers) in an AIOHTTP request with the `headers` argument:
+AIOHTTPのリクエストでは、`headers` 引数で [カスタムヘッダーを指定](https://docs.aiohttp.org/en/stable/client_advanced.html#custom-request-headers) できます。
 
 ```python
 import aiohttp
@@ -314,19 +314,19 @@ async def fetch_with_custom_headers():
 asyncio.run(fetch_with_custom_headers())
 ```
 
-This way, AIOHTTP will make a GET HTTP request with the [`Accept`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) and [`Accept-Language`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) headers set.
+この方法で、AIOHTTPは [`Accept`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept) と [`Accept-Language`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language) ヘッダーを設定したGET HTTPリクエストを実行します。
 
 ### Setting a Custom User Agent
 
-[`User-Agent`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) is one of the most critical [HTTP headers for web scraping](https://brightdata.com/blog/web-data/http-headers-for-web-scraping). By default, AIOHTTP uses this `User-Agent`:
+[`User-Agent`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) は、[Webスクレイピングにおける最重要HTTPヘッダー](https://brightdata.jp/blog/web-data/http-headers-for-web-scraping) の1つです。デフォルトでは、AIOHTTPは次の `User-Agent` を使用します。
 
 ```
 Python/<PYTHON_VERSION> aiohttp/<AIOHTTP_VERSION>
 ```
 
-The default value mentioned above can make your requests easily identifiable as coming from an automated script, increasing the likelihood of being blocked by the target site.
+上記のデフォルト値では、自動化スクリプトからのリクエストであることが容易に識別され、ターゲットサイトにブロックされる可能性が高まります。
 
-To reduce the chances of getting detected, you can set a custom real-world `User-Agent` as before:
+検知される可能性を下げるために、先ほどと同様に現実世界のカスタム `User-Agent` を設定できます。
 
 ```python
 import aiohttp
@@ -351,7 +351,7 @@ asyncio.run(fetch_with_custom_user_agent())
 
 ### Setting Cookies
 
-Just like HTTP headers, you can [set custom cookies](https://docs.aiohttp.org/en/v3.7.3/client_advanced.html#custom-cookies) using the `cookies` in `ClientSession()`:
+HTTPヘッダーと同様に、`ClientSession()` 内の `cookies` を使用して [カスタムCookieを設定](https://docs.aiohttp.org/en/v3.7.3/client_advanced.html#custom-cookies) できます。
 
 ```python
 import aiohttp
@@ -375,14 +375,14 @@ async def fetch_with_custom_cookies():
 asyncio.run(fetch_with_custom_cookies())
 ```
 
-Cookies allow you to include session data essential for your web scraping requests.
+Cookieを使用すると、Webスクレイピングのリクエストに不可欠なセッションデータを含められます。
 
 > **Note**:\
-> Cookies set in `ClientSession` are shared across all requests made with that session. To access session cookies, refer to [`ClientSession.cookie_jar`](https://docs.aiohttp.org/en/v3.7.3/client_reference.html#aiohttp.ClientSession.cookie_jar).
+> `ClientSession` に設定したCookieは、そのセッションで行われるすべてのリクエスト間で共有されます。セッションCookieにアクセスするには、[`ClientSession.cookie_jar`](https://docs.aiohttp.org/en/v3.7.3/client_reference.html#aiohttp.ClientSession.cookie_jar) を参照してください。
 
 ### Proxy Integration
 
-In AIOHTTP, you can route your requests through a proxy server to reduce the risk of IP bans. Do that by using the [`proxy` argument](https://docs.aiohttp.org/en/v3.7.3/client_advanced.html#proxy-support) in the HTTP method function on `session`:
+AIOHTTPでは、IP BANのリスクを減らすために、プロキシサーバー経由でリクエストをルーティングできます。これを行うには、`session` のHTTPメソッド関数で [`proxy` 引数](https://docs.aiohttp.org/en/v3.7.3/client_advanced.html#proxy-support) を使用します。
 
 ```python
 import aiohttp
@@ -405,11 +405,11 @@ asyncio.run(fetch_through_proxy())
 
 ### Error Handling
 
-By default, AIOHTTP raises errors only for connection or network issues. To raise exceptions for HTTP responses when receiving [`4xx`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#client_error_responses) and [`5xx`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses) status codes, you can use any of the following approaches:
+デフォルトでは、AIOHTTPは接続またはネットワークの問題に対してのみエラーを送出します。[`4xx`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#client_error_responses) および [`5xx`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses) のステータスコードを受信した際にHTTPレスポンスに対して例外を送出するには、以下のいずれかのアプローチを使用できます。
 
-1. **Set `raise_for_status=True` when creating the `ClientSession`**: Automatically raise exceptions for all requests made through the session if the response status is `4xx` or `5xx`.
-2. **Pass `raise_for_status=True` directly to request methods**: Enable error raising for individual request methods (like `session.get()` or `session.post()`) without affecting others.
-3. **Call `response.raise_for_status()` manually**: Give full control over when to raise exceptions, allowing you to decide on a per-request basis.
+1. **`ClientSession` 作成時に `raise_for_status=True` を設定**：レスポンスステータスが `4xx` または `5xx` の場合に、そのセッション経由のすべてのリクエストで例外を自動的に送出します。
+2. **リクエストメソッドへ直接 `raise_for_status=True` を渡す**：他のメソッドへ影響させず、個別のリクエストメソッド（`session.get()` や `session.post()` など）に対してエラー送出を有効にします。
+3. **`response.raise_for_status()` を手動で呼び出す**：例外を送出するタイミングを完全に制御でき、リクエスト単位で判断できます。
 
 Option #1 example:
 
@@ -433,7 +433,7 @@ async def fetch_with_session_error_handling():
 asyncio.run(fetch_with_session_error_handling())
 ```
 
-When `raise_for_status=True` is set at the session level, all requests made through that session will raise an `aiohttp.ClientResponseError` for `4xx` or `5xx` responses.
+セッションレベルで `raise_for_status=True` を設定すると、そのセッションを通じて行われるすべてのリクエストは、`4xx` または `5xx` のレスポンスに対して `aiohttp.ClientResponseError` を送出します。
 
 Option #2 example:
 
@@ -457,7 +457,7 @@ async def fetch_with_raise_for_status():
 asyncio.run(fetch_with_raise_for_status())
 ```
 
-In this case, the `raise_for_status=True` argument is passed directly to the `session.get()` call. This ensures that an exception is raised automatically for any `4xx` or `5xx` status codes.
+この場合、`raise_for_status=True` 引数が `session.get()` 呼び出しへ直接渡されています。これにより、`4xx` または `5xx` のステータスコードに対して例外が自動的に送出されます。
 
 Option #3 example:
 
@@ -481,20 +481,20 @@ async def fetch_with_manual_error_handling():
 asyncio.run(fetch_with_manual_error_handling())
 ```
 
-If you prefer greater control over individual requests, you can manually call `response.raise_for_status()` after making a request. This approach lets you determine the precise moment to handle errors.  
+個々のリクエストをより細かく制御したい場合は、リクエスト後に `response.raise_for_status()` を手動で呼び出せます。このアプローチでは、エラーを処理する正確なタイミングを決定できます。  
 
 
 ### Retrying Failed Requests
 
-AIOHTTP does not provide built-in support for retrying requests automatically. To implement that, you must use custom logic or a third-party library like [`aiohttp-retry`](https://github.com/inyutin/aiohttp_retry). This enables you to configure retry logic for failed requests, helping to handle transient network issues, timeouts, or rate limits.
+AIOHTTPには、リクエストの自動リトライを行うための組み込みサポートはありません。これを実装するには、カスタムロジック、または [`aiohttp-retry`](https://github.com/inyutin/aiohttp_retry) のようなサードパーティライブラリを使用する必要があります。これにより、失敗したリクエストに対するリトライロジックを設定でき、一時的なネットワーク問題、タイムアウト、レート制限に対処しやすくなります。
 
-Install [`aiohttp-retry`](https://pypi.org/project/aiohttp-retry/):
+[`aiohttp-retry`](https://pypi.org/project/aiohttp-retry/) をインストールします。
 
 ```bash
 pip install aiohttp-retry
 ```
 
-Use it in the code:
+コードで使用します。
 
 ```python
 import asyncio
@@ -509,11 +509,11 @@ async def main():
     await retry_client.close()
 ```
 
-This configures retry behavior, with an exponential backoff strategy. Learn more in the [official docs](https://github.com/inyutin/aiohttp_retry?tab=readme-ov-file#documentation).
+これにより、指数バックオフ戦略によるリトライ動作が設定されます。詳細は [official docs](https://github.com/inyutin/aiohttp_retry?tab=readme-ov-file#documentation) を参照してください。
 
 ## AIOHTTP vs Requests for Web Scraping
 
-Below is a summary table to compare AIOHTTP and [Requests for web scraping](https://brightdata.com/blog/web-data/python-requests-guide):
+以下は、AIOHTTPと [WebスクレイピングにおけるRequests](https://brightdata.jp/blog/web-data/python-requests-guide) を比較するためのサマリーテーブルです。
 
 | **Feature** | **AIOHTTP** | **Requests** |
 | --- | --- | --- |
@@ -527,19 +527,19 @@ Below is a summary table to compare AIOHTTP and [Requests for web scraping](http
 | **User-agent customization** | ✔️  | ✔️  |
 | **Proxy support** | ✔️  | ✔️  |
 | **Cookie handling** | ✔️  | ✔️  |
-| **Retry mechanism** | Available only via a third-party library | Available via `HTTPAdapter`s |
-| **Performance** | High | Medium |
-| **Community support and popularity** | Medium | Large |
+| **Retry mechanism** | サードパーティライブラリ経由でのみ利用可能 | `HTTPAdapter`s 経由で利用可能 |
+| **Performance** | 高 | 中 |
+| **Community support and popularity** | 中 | 大 |
 
-For a complete comparison, check out our blog post on [Requests vs HTTPX vs AIOHTTP](https://brightdata.com/blog/web-data/requests-vs-httpx-vs-aiohttp).
+完全な比較については、[Requests vs HTTPX vs AIOHTTP](https://brightdata.jp/blog/web-data/requests-vs-httpx-vs-aiohttp) に関するブログ記事をご覧ください。
 
 ## Conclusion
 
-AIOHTTP is a fast and reliable tool for making HTTP requests to gather online data. However, automated HTTP requests can expose your public IP address. To protect your privacy and security, consider using Bright Data's proxy servers to mask your IP address.
+AIOHTTPは、オンラインデータを収集するためにHTTPリクエストを行う高速で信頼性の高いツールです。ただし、自動化されたHTTPリクエストは公開IPアドレスを露出させる可能性があります。プライバシーとセキュリティを保護するために、Bright Dataのプロキシサーバーを使用してIPアドレスをマスクすることをご検討ください。
 
-- [Datacenter proxies](https://brightdata.com/proxy-types/datacenter-proxies) – Over 770,000 datacenter IPs.
-- [Residential proxies](https://brightdata.com/proxy-types/residential-proxies) – Over 72M residential IPs in more than 195 countries.
-- [ISP proxies](https://brightdata.com/proxy-types/isp-proxies) – Over 700,000 ISP IPs.
-- [Mobile proxies](https://brightdata.com/proxy-types/mobile-proxies) – Over 7M mobile IPs.
+- [Datacenter proxies](https://brightdata.jp/proxy-types/datacenter-proxies) – 770,000以上のデータセンターIP。
+- [Residential proxies](https://brightdata.jp/proxy-types/residential-proxies) – 195か国以上で72M以上のレジデンシャルIP。
+- [ISP proxies](https://brightdata.jp/proxy-types/isp-proxies) – 700,000以上のISP IP。
+- [Mobile proxies](https://brightdata.jp/proxy-types/mobile-proxies) – 7M以上のモバイルIP。
 
-Create a free Bright Data account today to test our proxies and scraping solutions!
+今すぐ無料のBright Dataアカウントを作成して、当社のプロキシおよびスクレイピングソリューションをテストしてください！
